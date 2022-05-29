@@ -193,3 +193,59 @@ TukeyHSD(aov(m1))
 
 ## Soal 5
 Diberikan dataset sebagai berikut: (https://drive.google.com/file/d/1aLUOdw_LVJq6VQrQEkuQhZ8FW43FemTJ/view)
+
+### A. Buatlah plot sederhana untuk visualisasi data
+```
+library(multcompView)
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+GTL <- read_csv("GTL.csv")
+head(GTL)
+str(GTL)
+qplot(x = Temp, y = Light, geom = "point", data = GTL) + facet_grid(.~Glass, labeller = label_both)
+```
+
+![Cuplikan layar 2022-05-29 234843](https://user-images.githubusercontent.com/83849481/170881842-431c8499-29f1-48af-87a1-d846c8f49b33.png)
+
+### B. Lakukan uji ANOVA dua arah
+```
+GTL$Glass <- as.factor(GTL$Glass)
+GTL$Temp_Factor <- as.factor(GTL$Temp)
+str(GTL)
+
+anova <- aov(Light ~ Glass*Temp_Factor, data = GTL)
+summary(anova)
+```
+
+![Cuplikan layar 2022-05-29 234943](https://user-images.githubusercontent.com/83849481/170881845-87b86587-4412-4c80-9502-8fec95fc0a31.png)
+
+### C. Tampilkan tabel dengan mean dan standar deviasi keluaran cahaya untuk setiap perlakuan (kombinasi kaca pelat muka dan suhu operasi)
+```
+data <- group_by(GTL, Glass, Temp) %>% 
+  summarise(mean=mean(Light), sd=sd(Light)) %>% arrange(desc(mean))
+print(data)
+```
+
+![Cuplikan layar 2022-05-29 235140](https://user-images.githubusercontent.com/83849481/170881935-806587b7-4c15-4b52-9a5d-72d18e8397f4.png)
+
+### D. Lakukan uji Tukey
+```
+tukey <- TukeyHSD(anova)
+print(tukey)
+```
+
+![Cuplikan layar 2022-05-29 235241](https://user-images.githubusercontent.com/83849481/170882014-d1242744-2718-4379-b0f8-eb12406636a5.png)
+
+### E. Gunakan compact letter display untuk menunjukkan perbedaan signifikan antara uji Anova dan uji Tukey
+```
+tukey.cld <- multcompLetters4(anova, tukey)
+print(tukey.cld)
+
+cld <- as.data.frame.list(tukey.cld$`Glass:Temp_Factor`)
+data$Tukey <- cld$Letters
+print(data)
+```
+
+![Cuplikan layar 2022-05-29 235441](https://user-images.githubusercontent.com/83849481/170882099-31adab2c-6abf-49f6-9396-77d646b83663.png)
