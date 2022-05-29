@@ -97,3 +97,44 @@ install.packages("ggplot2")
 library(ggplot2)
 ggplot(fileData, aes(x = Group, y = Length)) + geom_boxplot(fill = "green", colour = "black") + 
   scale_x_discrete() + xlab("Treatment Group") +  ylab("Length (cm)")
+
+# 5
+install.packages("multcompView")
+install.packages("readr")
+install.packages("dplyr")
+
+# Poin A (membuat plot sederhana untuk visualisasi)
+library(multcompView)
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+GTL <- read_csv("GTL.csv")
+head(GTL)
+str(GTL)
+qplot(x = Temp, y = Light, geom = "point", data = GTL) + facet_grid(.~Glass, labeller = label_both)
+
+# Poin B (uji anova dua arah)
+GTL$Glass <- as.factor(GTL$Glass)
+GTL$Temp_Factor <- as.factor(GTL$Temp)
+str(GTL)
+
+anova <- aov(Light ~ Glass*Temp_Factor, data = GTL)
+summary(anova)
+
+# Poin C (menampilkan tabel dengan mean dan sd)
+data <- group_by(GTL, Glass, Temp) %>% 
+  summarise(mean=mean(Light), sd=sd(Light)) %>% arrange(desc(mean))
+print(data)
+
+# Poin D (uji tukey)
+tukey <- TukeyHSD(anova)
+print(tukey)
+
+# Poin E (menunjukkan perbedaan uji anova dan tukey)
+tukey.cld <- multcompLetters4(anova, tukey)
+print(tukey.cld)
+
+cld <- as.data.frame.list(tukey.cld$`Glass:Temp_Factor`)
+data$Tukey <- cld$Letters
+print(data)
