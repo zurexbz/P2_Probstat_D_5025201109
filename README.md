@@ -129,3 +129,67 @@ kritikal > statistik
 ### F. Kesimpulan
 Tidak terdapat perbedaan rata-rata saham pada perusahaan di Bandung dan Bali
 
+## Soal 4
+Diberikan dataset sebagai berikut: https://intip.in/datasetprobstat1
+
+### A. Buatlah masing masing jenis spesies menjadi 3 subjek "Grup" (grup 1,grup 2,grup 3). Lalu Gambarkan plot kuantil normal untuk setiap kelompok dan lihat apakah ada outlier utama dalam homogenitas varians.
+Dapat menggunakan solusi berikut, yaitu kita mengambil data terlebih dahulu dari link yang diberikan. Kemudian dilakukan pengelompokkan menjadi 3 grup dan terakhir disimpan dalam 3 variabel yang berbeda juga.
+```
+fileData <- read.table("https://rstatisticsandresearch.weebly.com/uploads/1/0/2/6/1026585/onewayanova.txt",h=T)
+attach(fileData)
+names(fileData)
+
+fileData$Group <- as.factor(fileData$Group)
+fileData$Group = factor(fileData$Group,labels = c("Group 1", "Group 2", "Group 3"))
+class(fileData$Group)
+
+Group1 <- subset(fileData, Group == "Group 1")
+Group2 <- subset(fileData, Group == "Group 2")
+Group3 <- subset(fileData, Group == "Group 3")
+
+qqnorm(Group1$Length)
+qqnorm(Group2$Length)
+qqnorm(Group3$Length)
+
+qqline(Group1$Length)
+qqline(Group2$Length)
+qqline(Group3$Length)
+```
+Sehingga menghasilkan hasil sebagai berikut:
+
+![Cuplikan layar 2022-05-29 233625](https://user-images.githubusercontent.com/83849481/170881086-8ce1f7f9-88ab-4892-b4be-8fc38a0df626.png)
+
+### B. Carilah atau periksalah Homogeneity of variances nya , Berapa nilai p yang didapatkan? , apa hipotesis dan kesimpulan yang dapat diambil?
+Dengan cara berikut:
+```
+bartlett.test(Length ~ Group, data = fileData)
+```
+Didapatkan hasil output Bartlett's K-squared = 0.43292, df = 2, p-value = 0.8054
+
+![Cuplikan layar 2022-05-29 233839](https://user-images.githubusercontent.com/83849481/170881212-8cc4dcf4-3ba0-4c47-b43b-15d0cec84314.png)
+
+### C. Untuk uji ANOVA (satu arah), buatlah model linier dengan Panjang versus Grup dan beri nama model tersebut model 1.
+```
+m1 = lm(Length ~ Group, data = fileData)
+anova(m1)
+```
+
+![Cuplikan layar 2022-05-29 233951](https://user-images.githubusercontent.com/83849481/170881265-f6bf9cf5-c034-4d1f-b24c-3a8e8be0d5a7.png)
+
+### D. Dari Hasil Poin C, Berapakah nilai-p?, apa yang dapat Anda simpulkandari H0?
+Dari poin c, nilai p yang didapat sebesar 0.8054. Kesimpulan H0 ditolak
+
+### E. Verifikasilah jawaban model 1 dengan Post-hoc test Tukey HSD, dari nilai p yang didapatkan apakah satu jenis kucing lebih panjang dari yang lain?
+```
+TukeyHSD(aov(m1))
+```
+
+![Cuplikan layar 2022-05-29 234227](https://user-images.githubusercontent.com/83849481/170881402-00e539f8-0f14-4ba1-b371-606250dd13d1.png)
+
+### F. Visualisasikan data dengan ggplot2
+
+![Cuplikan layar 2022-05-29 234445](https://user-images.githubusercontent.com/83849481/170881517-490fe1e1-c3e5-4262-b1cf-a7a16bf2a1e5.png)
+![Cuplikan layar 2022-05-29 234503](https://user-images.githubusercontent.com/83849481/170881532-11cb6932-7067-4b07-a505-b29070ba560f.png)
+
+## Soal 5
+Diberikan dataset sebagai berikut: (https://drive.google.com/file/d/1aLUOdw_LVJq6VQrQEkuQhZ8FW43FemTJ/view)
